@@ -55,7 +55,7 @@ class ClientController extends Controller
             $uri .= "vmess=" . $item->host . ":" . $item->port . ", method=none, password=" . $user->v2ray_uuid . ", fast-open=false, udp-relay=false, tag=" . $item->name;
             if ($item->tls) {
                 $tlsSettings = json_decode($item->tlsSettings);
-                $uri .= ', obfs=over-tls';
+                if ($item->network === 'tcp') $uri .= ', obfs=over-tls';
                 if (isset($tlsSettings->allowInsecure)) {
                     // Default: tls-verification=true
                     $uri .= ', tls-verification=' . ($tlsSettings->allowInsecure ? "false" : "true");
@@ -64,7 +64,7 @@ class ClientController extends Controller
                     $uri .= ', obfs-host=' . $tlsSettings->serverName;
                 }
             }
-            if ($item->network == 'ws') {
+            if ($item->network === 'ws') {
                 $uri .= ', obfs=' . ($item->tls ? 'wss' : 'ws');
                 if ($item->networkSettings) {
                     $wsSettings = json_decode($item->networkSettings);
