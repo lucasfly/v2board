@@ -3,6 +3,7 @@
 namespace App\Utils;
 
 use App\Models\Server;
+use App\Models\ServerTrojan;
 use App\Models\User;
 
 class Helper
@@ -54,6 +55,14 @@ class Helper
             $str .= $chars[mt_rand(0, $charsLen)];
         }
         return $str;
+    }
+
+    public static function buildTrojanLink(ServerTrojan $server, User $user)
+    {
+        $server->name = rawurlencode($server->name);
+        $uri = "trojan://{$user->uuid}@{$server->host}:{$server->port}#{$server->name}";
+        $uri .= "\r\n";
+        return $uri;
     }
 
     public static function buildVmessLink(Server $server, User $user)

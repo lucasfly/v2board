@@ -8,13 +8,13 @@ use App\Utils\CacheKey;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Server;
+use App\Models\ServerTrojan;
 use App\Models\ServerLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 
-class DeepbworkController extends Controller
+class TrojanTidalabController extends Controller
 {
     public function __construct(Request $request)
     {
@@ -31,20 +31,17 @@ class DeepbworkController extends Controller
     public function user(Request $request)
     {
         $nodeId = $request->input('node_id');
-        $server = Server::find($nodeId);
+        $server = ServerTrojan::find($nodeId);
         if (!$server) {
             abort(500, 'fail');
         }
-        Cache::put(CacheKey::get('SERVER_LAST_CHECK_AT', $server->id), time(), 3600);
+        Cache::put(CacheKey::get('SERVER_TROJAN_LAST_CHECK_AT', $server->id), time(), 3600);
         $serverService = new ServerService();
         $users = $serverService->getAvailableUsers(json_decode($server->group_id));
         $result = [];
         foreach ($users as $user) {
-            $user->v2ray_user = [
-                "uuid" => $user->uuid,
-                "email" => sprintf("%s@v2board.user", $user->uuid),
-                "alter_id" => $user->v2ray_alter_id,
-                "level" => $user->v2ray_level,
+            $user->trojan_user = [
+                "password" => $user->uuid,
             ];
             unset($user['uuid']);
             unset($user['v2ray_alter_id']);
@@ -61,7 +58,7 @@ class DeepbworkController extends Controller
     public function submit(Request $request)
     {
         // Log::info('serverSubmitData:' . $request->input('node_id') . ':' . file_get_contents('php://input'));
-        $server = Server::find($request->input('node_id'));
+        $server = ServerTrojan::find($request->input('node_id'));
         if (!$server) {
             return response([
                 'ret' => 0,
@@ -70,7 +67,7 @@ class DeepbworkController extends Controller
         }
         $data = file_get_contents('php://input');
         $data = json_decode($data, true);
-        Cache::put(CacheKey::get('SERVER_ONLINE_USER', $server->id), count($data), 3600);
+        Cache::put(CacheKey::get('SERVER_TROJAN_ONLINE_USER', $server->id), count($data), 3600);
         $serverService = new ServerService();
         $userService = new UserService();
         foreach ($data as $item) {
@@ -89,7 +86,7 @@ class DeepbworkController extends Controller
                 $item['u'],
                 $item['d'],
                 $server->rate,
-                'vmess'
+                'trojan'
             );
         }
 
@@ -109,7 +106,7 @@ class DeepbworkController extends Controller
         }
         $serverService = new ServerService();
         try {
-            $json = $serverService->getVmessConfig($nodeId, $localPort);
+            $json = $serverService->getTrojanConfig($nodeId, $localPort);
         } catch (\Exception $e) {
             abort(500, $e->getMessage());
         }
