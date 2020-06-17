@@ -30,19 +30,8 @@
 <script src="/assets/user/vendors.async.js?v={{$verison}}"></script>
 <script src="/assets/user/antd.async.js?v={{$verison}}"></script>
 <script src="/assets/user/umi.js?v={{$verison}}"></script>
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1E9Z5LRRK"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-
-    function gtag() {
-        dataLayer.push(arguments);
-    }
-
-    gtag('js', new Date());
-
-    gtag('config', 'G-P1E9Z5LRRK');
-</script>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
+<script src="/assets/user/tip.js?v={{$verison}}"></script>
 </body>
 
 </html>
