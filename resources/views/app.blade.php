@@ -31,7 +31,7 @@
 <script src="/assets/user/antd.async.js?v={{$verison}}"></script>
 <script src="/assets/user/umi.js?v={{$verison}}"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
-<script src="/assets/user/tip.js?v={{$verison}}"></script>
+<!-- <script src="/assets/user/tip.js?v={{$verison}}"></script> -->
 </body>
 
 </html>
