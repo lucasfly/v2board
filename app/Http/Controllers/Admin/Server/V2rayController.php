@@ -129,6 +129,7 @@ class V2rayController extends Controller
     public function copy(Request $request)
     {
         $server = Server::find($request->input('id'));
+        $server->show = 0;
         if (!$server) {
             abort(500, '服务器不存在');
         }
@@ -144,7 +145,7 @@ class V2rayController extends Controller
     public function viewConfig(Request $request)
     {
         $serverService = new ServerService();
-        $config = $serverService->getConfig($request->input('node_id'), 23333);
+        $config = $serverService->getVmessConfig($request->input('node_id'), 23333);
         return response([
             'data' => $config
         ]);
