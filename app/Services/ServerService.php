@@ -28,9 +28,9 @@ class ServerService
             if (in_array($user->group_id, $groupId)) {
                 $vmesss[$k]['link'] = Helper::buildVmessLink($vmesss[$k], $user);
                 if ($vmesss[$k]['parent_id']) {
-                    $vmesss[$k]['last_check_at'] = Cache::get(CacheKey::get('SERVER_LAST_CHECK_AT', $vmesss[$k]['parent_id']));
+                    $vmesss[$k]['last_check_at'] = Cache::get(CacheKey::get('SERVER_V2RAY_LAST_CHECK_AT', $vmesss[$k]['parent_id']));
                 } else {
-                    $vmesss[$k]['last_check_at'] = Cache::get(CacheKey::get('SERVER_LAST_CHECK_AT', $vmesss[$k]['id']));
+                    $vmesss[$k]['last_check_at'] = Cache::get(CacheKey::get('SERVER_V2RAY_LAST_CHECK_AT', $vmesss[$k]['id']));
                 }
                 array_push($vmess, $vmesss[$k]);
             }
@@ -51,7 +51,11 @@ class ServerService
         foreach ($trojans as $k => $v) {
             $groupId = json_decode($trojans[$k]['group_id']);
             if (in_array($user->group_id, $groupId)) {
-                $trojans[$k]['last_check_at'] = Cache::get(CacheKey::get('SERVER_TROJAN_LAST_CHECK_AT', $trojans[$k]['id']));
+                if ($trojans[$k]['parent_id']) {
+                    $trojans[$k]['last_check_at'] = Cache::get(CacheKey::get('SERVER_TROJAN_LAST_CHECK_AT', $trojans[$k]['parent_id']));
+                } else {
+                    $trojans[$k]['last_check_at'] = Cache::get(CacheKey::get('SERVER_TROJAN_LAST_CHECK_AT', $trojans[$k]['id']));
+                }
                 array_push($trojan, $trojans[$k]);
             }
 
@@ -119,9 +123,9 @@ class ServerService
 
         $json = json_decode(self::TROJAN_CONFIG);
         $json->local_port = $server->server_port;
-        $json->ssl->sni = $server->host;
-        $json->ssl->cert = "/root/.cert/{$server->host}.crt";
-        $json->ssl->key = "/root/.cert/{$server->host}.key";
+        $json->ssl->sni = $server->server_name ? $server->server_name : $server->host;
+        $json->ssl->cert = "/root/.cert/server.crt";
+        $json->ssl->key = "/root/.cert/server.key";
         $json->api->api_port = $localPort;
         return $json;
     }
@@ -196,8 +200,8 @@ class ServerService
             $tlsSettings = json_decode($server->tlsSettings);
             $json->inbound->streamSettings->security = 'tls';
             $tls = (object)[
-                'certificateFile' => '/home/v2ray.crt',
-                'keyFile' => '/home/v2ray.key'
+                'certificateFile' => '/root/.cert/server.crt',
+                'keyFile' => '/root/.cert/server.key'
             ];
             $json->inbound->streamSettings->tlsSettings = new \StdClass();
             if (isset($tlsSettings->serverName)) {

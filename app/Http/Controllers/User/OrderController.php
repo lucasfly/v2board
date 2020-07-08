@@ -96,6 +96,10 @@ class OrderController extends Controller
             abort(500, '必须存在订阅才可以购买流量重置包');
         }
 
+        if ($request->input('cycle') === 'reset_price' && $user->expired_at <= time()) {
+            abort(500, '当前订阅已过期，无法购买重置包');
+        }
+
         DB::beginTransaction();
         $order = new Order();
         $orderService = new OrderService($order);
@@ -272,7 +276,7 @@ class OrderController extends Controller
 
         if ((int)config('v2board.bitpayx_enable')) {
             $bitpayX = new \StdClass();
-            $bitpayX->name = config('v2board.bitpayx_name', '聚合支付');
+            $bitpayX->name = config('v2board.bitpayx_name', '在线支付');
             $bitpayX->method = 4;
             $bitpayX->icon = 'wallet';
             array_push($data, $bitpayX);
@@ -280,7 +284,7 @@ class OrderController extends Controller
 
         if ((int)config('v2board.paytaro_enable')) {
             $obj = new \StdClass();
-            $obj->name = config('v2board.paytaro_name', '聚合支付');
+            $obj->name = config('v2board.paytaro_name', '在线支付');
             $obj->method = 5;
             $obj->icon = 'wallet';
             array_push($data, $obj);

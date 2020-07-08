@@ -29,7 +29,7 @@ class TelegramController extends Controller
                     break;
                 case '/traffic': $this->traffic();
                     break;
-                case '/getLatestUrl': $this->getLatestUrl();
+                case '/getlatesturl': $this->getLatestUrl();
                     break;
                 default: $this->help();
             }
@@ -87,7 +87,7 @@ class TelegramController extends Controller
         $commands = [
             '/bind 订阅地址 - 绑定你的' . config('v2board.app_name', 'V2Board') . '账号',
             '/traffic - 查询流量信息',
-            '/getLatestUrl - 获取最新的' . config('v2board.app_name', 'V2Board') . '网址'
+            '/getlatesturl - 获取最新的' . config('v2board.app_name', 'V2Board') . '网址'
         ];
         $text = implode(PHP_EOL, $commands);
         $telegramService->sendMessage($msg->chat_id, "你可以使用以下命令进行操作：\n\n$text", 'markdown');

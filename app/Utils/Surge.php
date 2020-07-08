@@ -29,7 +29,17 @@ class Surge
 
     public static function buildTrojan($password, $server)
     {
-        $uri = "{$server->name} = trojan, {$server->host}, {$server->port}, password={$password}";
+        $config = [
+            "{$server->name}=trojan",
+            "{$server->host}",
+            "{$server->port}",
+            "password={$password}",
+            $server->allow_insecure ? 'skip-cert-verify=true' : 'skip-cert-verify=false',
+            $server->server_name ? "sni={$server->server_name}" : "",
+            "tfo=true"
+        ];
+        $config = array_filter($config);
+        $uri = implode($config, ',');
         $uri .= "\r\n";
         return $uri;
     }

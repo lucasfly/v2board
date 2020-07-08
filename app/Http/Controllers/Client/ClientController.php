@@ -29,6 +29,9 @@ class ClientController extends Controller
                 if (strpos($_SERVER['HTTP_USER_AGENT'], 'quantumult%20x') !== false) {
                     die($this->quantumultX($user, $servers['vmess'], $servers['trojan']));
                 }
+                if (strpos($_SERVER['HTTP_USER_AGENT'], 'quantumult') !== false) {
+                    die($this->quantumult($user, $servers['vmess']));
+                }
                 if (strpos($_SERVER['HTTP_USER_AGENT'], 'clash') !== false) {
                     die($this->clash($user, $servers['vmess'], $servers['trojan']));
                 }
@@ -41,6 +44,26 @@ class ClientController extends Controller
             }
             die($this->origin($user, $servers['vmess'], $servers['trojan']));
         }
+    }
+    // TODO: Ready to stop support
+    private function quantumult($user, $vmess = [])
+    {
+        $uri = '';
+        header('subscription-userinfo: upload=' . $user->u . '; download=' . $user->d . ';total=' . $user->transfer_enable);
+        foreach ($vmess as $item) {
+            $str = '';
+            $str .= $item->name . '= vmess, ' . $item->host . ', ' . $item->port . ', chacha20-ietf-poly1305, "' . $user->uuid . '", over-tls=' . ($item->tls ? "true" : "false") . ', certificate=0, group=' . config('v2board.app_name', 'V2Board');
+            if ($item->network === 'ws') {
+                $str .= ', obfs=ws';
+                if ($item->networkSettings) {
+                    $wsSettings = json_decode($item->networkSettings);
+                    if (isset($wsSettings->path)) $str .= ', obfs-path="' . $wsSettings->path . '"';
+                    if (isset($wsSettings->headers->Host)) $str .= ', obfs-header="Host:' . $wsSettings->headers->Host . '"';
+                }
+            }
+            $uri .= "vmess://" . base64_encode($str) . "\r\n";
+        }
+        return base64_encode($uri);
     }
 
     private function quantumultX($user, $vmess = [], $trojan = [])
@@ -94,16 +117,7 @@ class ClientController extends Controller
         }
 
         // Subscription link
-        $subsURL = 'http';
-        if (isset( $_SERVER['HTTPS'] ) && strtolower( $_SERVER['HTTPS'] ) == 'on') {
-            $subsURL .= 's';
-        }
-        $subsURL .= '://';
-        if ($_SERVER['SERVER_PORT'] != ('80' || '443')) {
-            $subsURL .= $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . $_SERVER['REQUEST_URI'];
-        } else {
-            $subsURL .= $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-        }
+        $subsURL = config('v2board.subscribe_url', config('v2board.app_url', env('APP_URL'))) . '/api/v1/client/subscribe?token=' . $user['token'];
 
         $config = str_replace('$subs_link', $subsURL, $config);
         $config = str_replace('$proxies', $proxies, $config);
@@ -147,16 +161,7 @@ class ClientController extends Controller
         }
 
         // Subscription link
-        $subsURL = 'http';
-        if (isset( $_SERVER['HTTPS'] ) && strtolower( $_SERVER['HTTPS'] ) == 'on') {
-            $subsURL .= 's';
-        }
-        $subsURL .= '://';
-        if ($_SERVER['SERVER_PORT'] != ('80' || '443')) {
-            $subsURL .= $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . $_SERVER['REQUEST_URI'];
-        } else {
-            $subsURL .= $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-        }
+        $subsURL = config('v2board.subscribe_url', config('v2board.app_url', env('APP_URL'))) . '/api/v1/client/subscribe?token=' . $user['token'];
 
         $config = str_replace('$subs_link', $subsURL, $config);
         $config = str_replace('$proxies', $proxies, $config);
@@ -186,9 +191,9 @@ class ClientController extends Controller
             array_push($proxies, $item->name);
         }
 
-        $config['Proxy'] = array_merge($config['Proxy'] ? $config['Proxy'] : [], $proxy);
-        foreach ($config['Proxy Group'] as $k => $v) {
-            $config['Proxy Group'][$k]['proxies'] = array_merge($config['Proxy Group'][$k]['proxies'], $proxies);
+        $config['proxies'] = array_merge($config['proxies'] ? $config['proxies'] : [], $proxy);
+        foreach ($config['proxy-groups'] as $k => $v) {
+            $config['proxy-groups'][$k]['proxies'] = array_merge($config['proxy-groups'][$k]['proxies'], $proxies);
         }
         $yaml = Yaml::dump($config);
         $yaml = str_replace('$app_name', config('v2board.app_name', 'V2Board'), $yaml);

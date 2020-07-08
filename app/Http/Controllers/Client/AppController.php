@@ -16,7 +16,7 @@ class AppController extends Controller
     CONST SOCKS_PORT = 10010;
     CONST HTTP_PORT = 10011;
 
-    public function data(Request $request)
+    public function getConfig(Request $request)
     {
         $server = [];
         $user = $request->user;
@@ -39,11 +39,18 @@ class AppController extends Controller
             array_push($proxies, $item->name);
         }
 
-        $config['Proxy'] = array_merge($config['Proxy'] ? $config['Proxy'] : [], $proxy);
-        foreach ($config['Proxy Group'] as $k => $v) {
-            $config['Proxy Group'][$k]['proxies'] = array_merge($config['Proxy Group'][$k]['proxies'], $proxies);
+        $config['proxies'] = array_merge($config['proxies'] ? $config['proxies'] : [], $proxy);
+        foreach ($config['proxy-groups'] as $k => $v) {
+            $config['proxy-groups'][$k]['proxies'] = array_merge($config['proxy-groups'][$k]['proxies'], $proxies);
         }
         die(Yaml::dump($config));
+    }
+
+    public function getVersion()
+    {
+        return response([
+            'data' => '4.0.0'
+        ]);
     }
 
     public function config(Request $request)
