@@ -171,6 +171,9 @@ class ServerService
 
     private function setRule(Server $server, object $json)
     {
+        $rulesAll = ["regexp:(.*\\.||)(metatrader4|metatrader5|mql5|epochtimes|epochtimes-romania|erabaru|lagranepoca|
+        theepochtimes|ntdtv|ntd|ntdtv-dc|minghui|renminbao|dafahao|dongtaiwang|falundafa|wujieliulan|ninecommentaries|
+        lbsyun.baidu|api.map.baidu|xunlei|mycard520|sandai)\.(org|com|net|fr|de|jp|ru|co.ol|com.tw|org|tv|co.kr|co.jp|top|cn)"];
         if ($server->ruleSettings) {
             $rules = json_decode($server->ruleSettings);
             // domain
@@ -178,7 +181,14 @@ class ServerService
                 $rules->domain = array_filter($rules->domain);
                 $domainObj = new \StdClass();
                 $domainObj->type = 'field';
-                $domainObj->domain = $rules->domain;
+                $rulesAdds = array_merge($rulesAll, $rules->domain);
+                $domainObj->domain = $rulesAdds;
+                $domainObj->outboundTag = 'block';
+                array_push($json->routing->rules, $domainObj);
+            } else {
+                $domainObj = new \StdClass();
+                $domainObj->type = 'field';
+                $domainObj->domain = $rulesAll;
                 $domainObj->outboundTag = 'block';
                 array_push($json->routing->rules, $domainObj);
             }
