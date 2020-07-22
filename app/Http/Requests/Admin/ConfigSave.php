@@ -60,16 +60,24 @@ class ConfigSave extends FormRequest
             'bitpayx_name' => '',
             'bitpayx_enable' => 'in:0,1',
             'bitpayx_appsecret' => '',
-            // paytaro
-            'paytaro_name' => '',
-            'paytaro_enable' => 'in:0,1',
-            'paytaro_app_id' => '',
-            'paytaro_app_secret' => '',
+            // mGate
+            'mgate_name' => '',
+            'mgate_enable' => 'in:0,1',
+            'mgate_url' => 'nullable|url',
+            'mgate_app_id' => '',
+            'mgate_app_secret' => '',
+            // Epay
+            'epay_name' => '',
+            'epay_enable' => 'in:0,1',
+            'epay_url' => 'nullable|url',
+            'epay_pid' => '',
+            'epay_key' => '',
             // frontend
             'frontend_theme_sidebar' => 'in:dark,light',
             'frontend_theme_header' => 'in:dark,light',
             'frontend_theme_color' => 'in:default,darkblue,black',
             'frontend_background_url' => 'nullable|url',
+            'frontend_admin_path' => '',
             // tutorial
             'apple_id' => 'email',
             'apple_id_password' => '',
