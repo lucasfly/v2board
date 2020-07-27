@@ -108,7 +108,9 @@ class ConfigController extends Controller
                 'server' => [
                     'server_token' => config('v2board.server_token'),
                     'server_license' => config('v2board.server_license'),
-                    'server_log_level' => config('v2board.server_log_level', 'none')
+                    'server_log_enable' => config('v2board.server_log_enable', 0),
+                    'server_v2ray_domain' => config('v2board.server_v2ray_domain'),
+                    'server_v2ray_protocol' => config('v2board.server_v2ray_protocol'),
                 ],
                 'tutorial' => [
                     'apple_id' => config('v2board.apple_id')
@@ -138,10 +140,10 @@ class ConfigController extends Controller
         if (!\File::put(base_path() . '/config/v2board.php', "<?php\n return $data ;")) {
             abort(500, '修改失败');
         }
-        \Artisan::call('config:cache');
-        if (function_exists('opcache')) {
+        if (function_exists('opcache_reset')) {
             opcache_reset();
         }
+        \Artisan::call('config:cache');
         return response([
             'data' => true
         ]);
