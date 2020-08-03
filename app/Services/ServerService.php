@@ -205,6 +205,9 @@ class ServerService
             $protocolObj->outboundTag = 'block';
             array_push($json->routing->rules, $protocolObj);
         }
+        if (empty($domainRules) && empty($protocolRules)) {
+            $json->inbound->sniffing->enabled = false;
+        }
     }
 
     private function setTls(Server $server, object $json)
